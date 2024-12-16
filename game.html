@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canvas</title>
+  </head>
+  <body>
+    <canvas
+      id="cvs"
+      width="800"
+      height="600"
+      style="border: 1px solid black"
+    ></canvas>
+    <script src="game-lib.js"></script>
+    <script>
+      let cvs = document.querySelector("#cvs"); // 取得 canvas 物件
+      let ctx = cvs.getContext("2d"); // 取得對應的 context 物件
+      // 初始化資料
+      let circle=0; // 回和數
+      let plane = new Plane();
+      let ufos1 = new UFOSystem();
+      let objs = [plane, ufos1];
+      let refresh = function () {
+        // 更新資料
+        for (let i = 0; i < objs.length; i++) {
+          let dead = objs[i].update();
+          if (dead) {
+            objs.splice(i, 1);
+            i--;
+          }
+        }
+        // 清空畫面
+        ctx.fillRect(0, 0, cvs.width, cvs.height);
+        // 重新畫過畫面
+        for (let i = 0; i < objs.length; i++) {
+          objs[i].draw();
+        }
+        circle++; // 更新回合數
+      };
+      // 載入外部資源
+      let imgs = {
+        plane: "plane.png",
+        missile: "missile.png",
+        ufo: "ufo.png",
+        explosion: "explosion.png",
+      };
+
+      async function loadImages() {
+        for (let name in imgs) {
+          await loadImage(name, imgs[name]);
+        }
+        start();
+        console.log("started");
+      }
+
+      function loadImage(name, src) {
+        return new Promise((resolve) => {
+          let img = new Image();
+          img.src = src;
+          img.addEventListener("load", function () {
+            console.log(name, "Loaded");
+            imgs[name] = img;
+            resolve();
+          });
+        });
+      }
+
+      // 將兩個物件的距離相加，如果小於圓的半徑，則相撞
+
+      // 啟動遊戲
+      function start() {
+        document.addEventListener("keydown", keydown);
+        document.addEventListener("keyup", keyup);
+        window.setInterval(refresh, 10);
+      }
+      let keys = {}; // 用來追蹤那些按鍵有被按住
+      function keydown(e) {
+        keys[e.code] = true;
+        console.log(e.code);
+      }
+      function keyup(e) {
+        delete keys[e.code];
+      }
+      
+      loadImages();
+      console.log("End-End");
+      // if (e.code == "ArrowUp") {
+      //   keys["ArrowUp"]=true;
+      // } else if (e.code == "ArrowDown") {
+      //   plane.y+=50;
+      // } else if (e.code == "ArrowLeft") {
+      //   plane.x-=50;
+      // } else if (e.code == "ArrowRight") {
+      //   plane.x+=50;
+      // }
+
+      // let img = new Image();
+      // img.src = "fire.png";
+      // img.addEventListener("load", function () {
+      //   window.setInterval(refresh, 10);
+      // });
+      /*
+      // 填滿
+      ctx.fillStyle = "red";
+      ctx.fillRect(50, 50, 100, 100); // 畫一個 100x100 的方形在 50,50 的位置
+      ctx.fillStyle = "blue";
+      ctx.fillText("Hello", 300, 50);
+      // 描邊
+      ctx.strokeStyle = "green";
+      ctx.strokeRect(50, 200, 50, 50);
+      // 路徑工具
+      // 定義路徑 > 填滿或描邊
+      ctx.beginPath();
+      ctx.moveTo(200, 100);
+      ctx.lineTo(300, 150);
+      // 描邊路徑
+      ctx.stroke();
+      ctx.strokeStyle = "black";
+      ctx.moveTo(400, 100);
+      ctx.lineTo(300, 150);
+      ctx.lineTo(400, 150);
+      // 填滿路徑
+      ctx.fill();
+      // 圓形
+      ctx.beginPath();
+      ctx.arc(100,400,50,0,2*Math.PI);
+      ctx.fill();
+      ctx.arc(400,400,50,0,1*Math.PI);
+      ctx.fill();
+      // 曲線
+      ctx.beginPath();
+      ctx.moveTo(400,300);
+      ctx.quadraticCurveTo(410,600,600,150); // 二次曲線、貝茲曲線
+      ctx.stroke();
+      cubic-bezier(0.25, 0.8, 0.25, 1);
+      ctx.stroke();
+      // 畫一張圖片在畫布上
+      let img=new Image();
+      img.src="13.jpg";
+      img.addEventListener("load",function(){
+        // 確保圖片載入完成之後，才畫出來
+        ctx.globalAlpha=0.5;
+        ctx.drawImage(img,0,0,cvs.width,cvs.height);
+      });
+      */
+    </script>
+  </body>
+</html>
